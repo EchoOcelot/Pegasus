@@ -1,0 +1,10 @@
+name: Pegasus
+folia-supported: true
+version: '1.0-SNAPSHOT'
+main: io.github.echoocelot.pegasus.Pegasus
+api-version: '1.21'
+softdepend: [Towny, Essentials]
+permissions:
+      pegasus.tp:
+        description: "Grants permission to teleport with mounts in Pegasus"
+        default: true
