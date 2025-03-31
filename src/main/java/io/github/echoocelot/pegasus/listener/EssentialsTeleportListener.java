@@ -34,7 +34,7 @@ public class EssentialsTeleportListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerEssentialsTeleportHome(UserTeleportHomeEvent event) {
         Player player = event.getUser().getBase();
         Location to = event.getHomeLocation();
@@ -53,7 +53,7 @@ public class EssentialsTeleportListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerEssentialsTeleportWarp(UserWarpEvent event) {
         Player player = event.getUser().getBase();
         String warpName = event.getWarp();

@@ -36,7 +36,7 @@ public class TownyTeleportListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFirstRunTownSpawn(TownSpawnEvent event) {
         Player player = event.getPlayer();
         Location to = event.getTo();
@@ -53,7 +53,7 @@ public class TownyTeleportListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFirstRunNationSpawn(NationSpawnEvent event) {
         Player player = event.getPlayer();
         Location to = event.getTo();
@@ -69,7 +69,7 @@ public class TownyTeleportListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFirstRunResidentSpawn(ResidentSpawnEvent event) {
         Player player = event.getPlayer();
         Location to = event.getTo();
