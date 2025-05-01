@@ -3,6 +3,7 @@ package io.github.echoocelot.pegasus.api;
 import io.github.echoocelot.pegasus.Pegasus;
 import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -22,18 +23,7 @@ public class TeleportManager {
     private static final Map<String, Object[]> teleports = new HashMap<>();
 
     public static void tpMountAndPlayer(Player player, Entity mount, Location to) {
-        if (!(mount instanceof Boat || mount instanceof Minecart)) {
-            if (mount instanceof Camel) {
-                mount.getScheduler().execute(plugin, () -> {
-                    List<Entity> passengers = mount.getPassengers();
-                    if (passengers.size() == 2) {
-                        for (Entity e : passengers) {
-                            if (e instanceof Player)
-                                PegasusMessaging.sendErrorMessage((Player) e, "You cannot teleport with two passengers on a camel!");
-                        }
-                    }
-                }, null, 0L);
-            }
+        if (!(mount instanceof Boat || mount instanceof Minecart || mount instanceof ArmorStand)) {
             EntityScheduler mountScheduler = mount.getScheduler();
 
             mountScheduler.execute(plugin, mount::eject, null, 5L);
@@ -65,12 +55,27 @@ public class TeleportManager {
         }
     }
 
+	public static Boolean isCamelWithTwoPassengers(Entity mount) {
+		if (mount instanceof Camel) {
+			List<Entity> passengers = mount.getPassengers();
+			Bukkit.broadcast(Component.text(passengers.size()));
+            return passengers.size() == 2;
+		}
+		else return false;
+	}
+
     public static CompletableFuture<Boolean> couldSuffocationOccur(Entity mount, Location to) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         RegionScheduler regionScheduler = Bukkit.getRegionScheduler();
         Block spawn = to.getBlock();
         AtomicInteger pendingChecks = new AtomicInteger(0);
         AtomicReference<Boolean> suffocation = new AtomicReference<>(false);
+
+		if (mount instanceof Boat || mount instanceof Minecart || mount instanceof ArmorStand) {
+			// will not tp them with boat/minecart/armor stand, so don't give any warning
+			future.complete(false);
+			return future;
+		}
 
         switch (mount.getType()) {
             case PIG -> {
