@@ -58,7 +58,6 @@ public class TeleportManager {
 	public static Boolean isCamelWithTwoPassengers(Entity mount) {
 		if (mount instanceof Camel) {
 			List<Entity> passengers = mount.getPassengers();
-			Bukkit.broadcast(Component.text(passengers.size()));
             return passengers.size() == 2;
 		}
 		else return false;
