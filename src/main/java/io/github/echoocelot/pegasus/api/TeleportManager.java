@@ -40,7 +40,7 @@ public class TeleportManager {
 					} catch (Exception e) {
 						plugin.getLogger().warning("Failed to eject mount: " + e.getMessage());
 						e.printStackTrace();
-					}
+                    }
 				}, null, 5L);
 
 				if (isFoliaEnabled()) {
@@ -83,33 +83,49 @@ public class TeleportManager {
 						return null;
 					});
 				} else {
+					CompletableFuture<Void> teleportFuture = new CompletableFuture<>();
+
 					mountScheduler.execute(plugin, () -> {
 						try {
 							mount.teleport(to);
+							teleportFuture.complete(null);
 						} catch (Exception e) {
 							plugin.getLogger().warning("Mount teleport failed: " + e.getMessage());
 							e.printStackTrace();
+							teleportFuture.completeExceptionally(e);
 						}
 					}, null, 7L);
 
-					playerScheduler.execute(plugin, () -> {
-						try {
-							player.teleport(to);
-						} catch (Exception e) {
-							plugin.getLogger().warning("Player teleport failed: " + e.getMessage());
-							e.printStackTrace();
-						}
-					}, null, 9L);
+					teleportFuture.thenRun(() -> {
+						CompletableFuture<Void> playerTeleportFuture = new CompletableFuture<>();
 
-					mountScheduler.execute(plugin, () -> {
-						try {
-							mount.addPassenger(player);
-						} catch (Exception e) {
-							plugin.getLogger().warning("Failed to add passenger: " + e.getMessage());
-							e.printStackTrace();
-						}
-					}, null, 11L);
+						playerScheduler.execute(plugin, () -> {
+							try {
+								player.teleport(to);
+								playerTeleportFuture.complete(null);
+							} catch (Exception e) {
+								plugin.getLogger().warning("Player teleport failed: " + e.getMessage());
+								e.printStackTrace();
+								playerTeleportFuture.completeExceptionally(e);
+							}
+						}, null, 9L);
+
+						playerTeleportFuture.thenRun(() -> {
+							mountScheduler.execute(plugin, () -> {
+								try {
+									mount.addPassenger(player);
+								} catch (Exception e) {
+									plugin.getLogger().warning("Failed to add passenger: " + e.getMessage());
+									e.printStackTrace();
+								}
+							}, null, 11L);
+						});
+					}).exceptionally(e -> {
+						plugin.getLogger().warning("Teleport chain aborted: " + e.getMessage());
+						return null;
+					});
 				}
+
 			}, null, 0L);
 		}
 	}
@@ -119,7 +135,8 @@ public class TeleportManager {
 		if (mount instanceof Camel) {
 			List<Entity> passengers = mount.getPassengers();
 			return passengers.size() == 2;
-		} else return false;
+		} 
+		else return false;
 	}
 
 	public static CompletableFuture<Boolean> couldSuffocationOccur(Entity mount, Location to) {
