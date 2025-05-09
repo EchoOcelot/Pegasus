@@ -25,7 +25,7 @@ public class EssentialsTeleportListener implements Listener {
 		Player player = event.getTeleportee().getBase();
 		Location to = event.getTarget().getLocation();
 
-		if (player.hasPermission("pegasus.tp")) {
+		if (player.hasPermission("pegasus.tp") && PlayersRidingManager.isPlayerRidingStuff(player)) {
 			Object[] teleportInfo = TeleportManager.removeTeleportsKey(player);
 			if (teleportInfo != null && Objects.equals(to.toString(), teleportInfo[0].toString())) {
 				Entity mount = (Entity) teleportInfo[1];

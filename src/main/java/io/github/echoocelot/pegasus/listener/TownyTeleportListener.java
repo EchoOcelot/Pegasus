@@ -27,7 +27,7 @@ public class TownyTeleportListener implements Listener {
 			Bukkit.getConsoleSender().sendMessage("Player was null in SuccessfulTownyTeleportEvent.");
 			return;
 		}
-		if (player.hasPermission("pegasus.tp")) {
+		if (player.hasPermission("pegasus.tp") && PlayersRidingManager.isPlayerRidingStuff(player)) {
 			Object[] teleportInfo = TeleportManager.removeTeleportsKey(player);
 			if (teleportInfo != null && Objects.equals(event.getTeleportLocation().toString(), teleportInfo[0].toString())) {
 				Entity mount = (Entity) teleportInfo[1];
